@@ -49,6 +49,10 @@ public class TwitterAPIUsingUtilsClass {
     rules.put("Java", "Rule for Java");
     rules.put("#100DaysOfCode", "Rule for 100 days of code");
     rules.put("Bitcoin", "Rule for Bitcoin");
+    rules.put("Soccer", "Rule for Soccer");
+    rules.put("politics", "Rule for politics");
+    rules.put("Sports", "Rule for Sports");
+    rules.put("USA", "Rule for usa");
     twitterUtil.addRules(rules);
 
     twitterUtil.readStream();

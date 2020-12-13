@@ -1,8 +1,10 @@
 package com.github.atulkaushal.twitter.kafka;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Properties;
 import java.util.function.Consumer;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.kafka.clients.producer.Callback;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -12,6 +14,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.atulkaushal.twitter.kafka.util.CustomTweetV2;
 import com.github.atulkaushal.twitter.kafka.util.TwitterUtil;
 import com.github.redouane59.twitter.TwitterClient;
 import com.github.redouane59.twitter.dto.tweet.TweetV2;
@@ -69,7 +72,14 @@ public class TwitterProducer {
           @Override
           public void accept(Object t) {
             TweetV2 tweet = (TweetV2) t;
-            String jsonTweet = new com.google.gson.Gson().toJson(tweet);
+            CustomTweetV2 customTweet = new CustomTweetV2();
+            try {
+              BeanUtils.copyProperties(customTweet, tweet);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+              e.printStackTrace();
+            }
+            customTweet.setUser(customTweet.setUserByUserId(customTweet.getAuthorId()));
+            String jsonTweet = new com.google.gson.Gson().toJson(customTweet);
             logger.info(jsonTweet);
             producer.send(
                 new ProducerRecord<String, String>("twitter_tweets", jsonTweet),
@@ -130,8 +140,13 @@ public class TwitterProducer {
     // create new rules
     TwitterClient twitterClient = new TwitterClient();
     twitterClient.addFilteredStreamRule("Kafka", "Rule for Kafka");
-    twitterClient.addFilteredStreamRule("bitcoin", "Rule for bitcoin");
-    twitterClient.addFilteredStreamRule("usa", "Rule for usa");
+    twitterClient.addFilteredStreamRule("Java", "Rule for Java");
+    twitterClient.addFilteredStreamRule("#100DaysOfCode", "Rule for 100 days of code");
+    twitterClient.addFilteredStreamRule("Bitcoin", "Rule for Bitcoin");
+    twitterClient.addFilteredStreamRule("Soccer", "Rule for Soccer");
+    twitterClient.addFilteredStreamRule("politics", "Rule for politics");
+    twitterClient.addFilteredStreamRule("Sports", "Rule for Sports");
+    twitterClient.addFilteredStreamRule("USA", "Rule for usa");
     return twitterClient;
   }
 }
