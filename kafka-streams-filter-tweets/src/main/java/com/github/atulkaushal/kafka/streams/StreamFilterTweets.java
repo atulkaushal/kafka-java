@@ -10,8 +10,18 @@ import org.apache.kafka.streams.kstream.KStream;
 
 import com.google.gson.JsonParser;
 
+/**
+ * The Class StreamFilterTweets.
+ *
+ * @author Atul
+ */
 public class StreamFilterTweets {
 
+  /**
+   * The main method.
+   *
+   * @param args the arguments
+   */
   public static void main(String[] args) {
     // Create properties
     Properties properties = new Properties();
@@ -48,19 +58,16 @@ public class StreamFilterTweets {
    */
   private static Integer extractUserFollowersFromTweet(String tweetJson) {
     try {
-      int followerCount =
-          JsonParser.parseString(tweetJson)
-              .getAsJsonObject()
-              .get("user")
-              .getAsJsonObject()
-              .get("data")
-              .getAsJsonObject()
-              .get("publicMetrics")
-              .getAsJsonObject()
-              .get("followersCount")
-              .getAsInt();
-      System.out.println(followerCount);
-      return followerCount;
+      return JsonParser.parseString(tweetJson)
+          .getAsJsonObject()
+          .get("user")
+          .getAsJsonObject()
+          .get("data")
+          .getAsJsonObject()
+          .get("publicMetrics")
+          .getAsJsonObject()
+          .get("followersCount")
+          .getAsInt();
 
     } catch (NullPointerException e) {
       return 0;
