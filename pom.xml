@@ -9,5 +9,6 @@
 	<modules>
 		<module>kafka-basics</module>
 		<module>kafka-twitter-producer</module>
+		<module>kafka-consumer-elastic</module>
 	</modules>
 </project>
