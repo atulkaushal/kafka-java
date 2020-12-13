@@ -16,8 +16,9 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.elasticsearch.action.bulk.BulkRequest;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
@@ -54,11 +55,13 @@ public class ElasticSearchConsumer {
 
     KafkaConsumer<String, String> consumer = createConsumer("twitter_tweets");
 
+    BulkRequest bulkRequest = new BulkRequest();
+
     // poll for new data
     while (true) {
       ConsumerRecords<String, String> records = consumer.poll(Duration.ofMillis(100));
-
-      logger.info("Total records: " + records.count());
+      long recordCount = records.count();
+      logger.info("Total records: " + recordCount);
       for (ConsumerRecord<String, String> record : records) {
 
         // 2 strategies for creating unique ids for every record to avoid duplicate data insertion
@@ -78,16 +81,24 @@ public class ElasticSearchConsumer {
                 .id(id); // id to make consumer idempotent as it won't affect any workflow or
         // usecase
 
-        IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
+        bulkRequest.add(indexRequest);
+
+        // IndexResponse indexResponse = client.index(indexRequest, RequestOptions.DEFAULT);
         // String id = indexResponse.getId();
-        logger.info(indexResponse.getId()); // uF10WXYB0uHI-27whyUE, uV14WXYB0uHI-27wpSVF
-        Thread.sleep(10); // introduce delay for debugging
+        // logger.info(indexResponse.getId()); // uF10WXYB0uHI-27whyUE, uV14WXYB0uHI-27wpSVF
+        // Thread.sleep(10); // introduce delay for debugging
       }
-      logger.info("Committing offsets");
-      // manually saving offsets.
-      consumer.commitSync();
-      logger.info("Offsets has been committed.");
-      Thread.sleep(10000);
+      if (recordCount > 0) {
+        BulkResponse bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
+        logger.info(bulkResponse.toString());
+        logger.info("Committing offsets");
+
+        // manually saving offsets.
+        consumer.commitSync();
+
+        logger.info("Offsets has been committed.");
+        Thread.sleep(10000);
+      }
     }
 
     // close the client
@@ -169,6 +180,7 @@ public class ElasticSearchConsumer {
     properties.setProperty(
         ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false"); // disabling auto commit of offsets
     properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "10");
+    properties.setProperty(ConsumerConfig.MAX_POLL_RECORDS_CONFIG, "100");
 
     // create the consumer
     KafkaConsumer<String, String> consumer = new KafkaConsumer<String, String>(properties);
