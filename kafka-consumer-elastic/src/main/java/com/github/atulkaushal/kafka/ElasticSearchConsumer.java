@@ -164,6 +164,12 @@ public class ElasticSearchConsumer {
     return client;
   }
 
+  /**
+   * Creates the consumer.
+   *
+   * @param topic the topic
+   * @return the kafka consumer
+   */
   public static KafkaConsumer<String, String> createConsumer(String topic) {
     final String BOOTSTRAP_SERVERS = "127.0.0.1:9092";
     String groupId = "kafka-demo-elasticsearch";
