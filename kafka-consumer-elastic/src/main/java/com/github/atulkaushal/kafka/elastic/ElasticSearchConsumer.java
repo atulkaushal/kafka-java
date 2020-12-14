@@ -1,4 +1,4 @@
-package com.github.atulkaushal.kafka;
+package com.github.atulkaushal.kafka.elastic;
 
 import java.io.IOException;
 import java.time.Duration;

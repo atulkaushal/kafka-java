@@ -1,4 +1,4 @@
-package com.github.atulkaushal.kafka;
+package com.github.atulkaushal.kafka.basics;
 
 import java.time.Duration;
 import java.util.Arrays;
