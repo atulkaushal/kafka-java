@@ -1,4 +1,4 @@
-![kafka-basics](https://github.com/atulkaushal/kakfa-java/workflows/kafka-basics/badge.svg)
+![kafka-all-projects](https://github.com/atulkaushal/kakfa-java/workflows/kafka-all-projects/badge.svg)
 
 # KAFKA
 Apache Kafka: A Distributed Streaming Platform.
